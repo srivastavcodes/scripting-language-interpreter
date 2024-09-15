@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"Interpreter_in_Go/token"
+	"fmt"
 	"testing"
 )
 
@@ -22,6 +23,7 @@ func TestNextToken(t *testing.T) {
 		{token.EOF, ""},
 	}
 	lex := New(input)
+	var index = 0
 	for i, test := range tests {
 		tok := lex.NextToken()
 
@@ -33,5 +35,7 @@ func TestNextToken(t *testing.T) {
 			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
 				i, test.expectedLiteral, tok.Literal)
 		}
+		index++
+		fmt.Printf("passed test times: %v\n", index)
 	}
 }
