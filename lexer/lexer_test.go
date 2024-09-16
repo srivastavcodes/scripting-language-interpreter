@@ -2,28 +2,63 @@ package lexer
 
 import (
 	"Interpreter_in_Go/token"
-	"fmt"
 	"testing"
 )
 
 func TestNextToken(t *testing.T) {
-	input := `=+(){},;`
+	input := `
+let five = 5;
+let ten = 10;
+
+let add = fn(x,y) {
+	x + y;
+};
+
+let result = add(five, ten);
+`
+
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
 	}{
+		{token.LET, "let"},
+		{token.IDENT, "five"},
 		{token.ASSIGN, "="},
-		{token.PLUS, "+"},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+		{token.LET, "let"},
+		{token.IDENT, "ten"},
+		{token.ASSIGN, "="},
+		{token.INT, "10"},
+		{token.SEMICOLON, ";"},
+		{token.LET, "let"},
+		{token.IDENT, "add"},
+		{token.ASSIGN, "="},
+		{token.FUNCTION, "fn"},
 		{token.LPARAN, "("},
+		{token.IDENT, "x"},
+		{token.COMMA, ","},
+		{token.IDENT, "y"},
 		{token.RPARAN, ")"},
 		{token.LBRACE, "{"},
-		{token.RBRACE, "}"},
-		{token.COMMA, ","},
+		{token.IDENT, "x"},
+		{token.PLUS, "+"},
+		{token.IDENT, "y"},
 		{token.SEMICOLON, ";"},
-		{token.EOF, ""},
+		{token.RBRACE, "}"},
+		{token.SEMICOLON, ";"},
+		{token.LET, "let"},
+		{token.IDENT, "result"},
+		{token.ASSIGN, "="},
+		{token.IDENT, "add"},
+		{token.LPARAN, "("},
+		{token.IDENT, "five"},
+		{token.COMMA, ","},
+		{token.IDENT, "ten"},
+		{token.RPARAN, ")"},
 	}
+
 	lex := New(input)
-	var index = 0
 	for i, test := range tests {
 		tok := lex.NextToken()
 
@@ -35,7 +70,5 @@ func TestNextToken(t *testing.T) {
 			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
 				i, test.expectedLiteral, tok.Literal)
 		}
-		index++
-		fmt.Printf("passed test times: %v\n", index)
 	}
 }
