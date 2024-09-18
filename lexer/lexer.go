@@ -36,74 +36,82 @@ func (lex *Lexer) peekChar() byte {
 }
 
 func (lex *Lexer) NextToken() token.Token {
-	var tok token.Token
+	var tokn token.Token
 	lex.skipWhiteSpace()
 
 	switch lex.char {
 	case '=':
-		if lex.peekChar() == '=' {
-			char := lex.char
-			lex.readChar()
-			tok = token.Token{Type: token.EQ, Literal: string(char) + string(lex.char)}
-		} else {
-			tok = newToken(token.ASSIGN, lex.char)
-		}
+		tokn = lex.readTwoCharToken('=', token.EQ, token.ASSIGN)
 	case '+':
-		tok = newToken(token.PLUS, lex.char)
+		tokn = newToken(token.PLUS, lex.char)
 	case '-':
-		tok = newToken(token.MINUS, lex.char)
+		tokn = newToken(token.MINUS, lex.char)
 	case '!':
-		if lex.peekChar() == '=' {
-			char := lex.char
-			lex.readChar()
-			tok = token.Token{Type: token.NOT_EQ, Literal: string(char) + string(lex.char)}
-		} else {
-			tok = newToken(token.BANG, lex.char)
-		}
+		tokn = lex.readTwoCharToken('=', token.NOT_EQ, token.BANG)
 	case '/':
-		tok = newToken(token.SLASH, lex.char)
+		tokn = newToken(token.SLASH, lex.char)
 	case '*':
-		tok = newToken(token.ASTERISK, lex.char)
+		tokn = newToken(token.ASTERISK, lex.char)
 	case '<':
-		tok = newToken(token.LT, lex.char)
+		tokn = newToken(token.LT, lex.char)
 	case '>':
-		tok = newToken(token.GT, lex.char)
+		tokn = newToken(token.GT, lex.char)
 	case ';':
-		tok = newToken(token.SEMICOLON, lex.char)
+		tokn = newToken(token.SEMICOLON, lex.char)
 	case ',':
-		tok = newToken(token.COMMA, lex.char)
+		tokn = newToken(token.COMMA, lex.char)
 	case '(':
-		tok = newToken(token.LPARAN, lex.char)
+		tokn = newToken(token.LPARAN, lex.char)
 	case ')':
-		tok = newToken(token.RPARAN, lex.char)
+		tokn = newToken(token.RPARAN, lex.char)
 	case '{':
-		tok = newToken(token.LBRACE, lex.char)
+		tokn = newToken(token.LBRACE, lex.char)
 	case '}':
-		tok = newToken(token.RBRACE, lex.char)
+		tokn = newToken(token.RBRACE, lex.char)
 	case 0:
-		tok.Literal = ""
-		tok.Type = token.EOF
+		tokn.Literal = ""
+		tokn.Type = token.EOF
 	default:
-		if isLetter(lex.char) {
-			tok.Literal = lex.readIdentifier()
-			tok.Type = token.LookupIdent(tok.Literal)
-			return tok
-		} else if isDigit(lex.char) {
-			tok.Type = token.INT
-			tok.Literal = lex.readNumber()
-			return tok
-		} else {
-			tok = newToken(token.ILLEGAL, lex.char)
-		}
+		return lex.readDefaultToken()
 	}
 	lex.readChar()
-	return tok
+	return tokn
 }
 
 func (lex *Lexer) skipWhiteSpace() {
 	for lex.char == ' ' || lex.char == '\t' || lex.char == '\n' || lex.char == '\r' {
 		lex.readChar()
 	}
+}
+
+func (lex *Lexer) readTwoCharToken(expectedChar byte, twoCharType,
+	singleCharType token.TokenType) token.Token {
+
+	if lex.peekChar() == expectedChar {
+		char := lex.char
+		lex.readChar()
+
+		return token.Token{Type: twoCharType, Literal: string(char) + string(lex.char)}
+	}
+	return newToken(singleCharType, lex.char)
+}
+
+func (lex *Lexer) readDefaultToken() token.Token {
+	var tokn token.Token
+
+	if isLetter(lex.char) {
+		tokn.Literal = lex.readIdentifier()
+		tokn.Type = token.LookupIdent(tokn.Literal)
+		return tokn
+	}
+	if isDigit(lex.char) {
+		tokn.Type = token.INT
+		tokn.Literal = lex.readNumber()
+		return tokn
+	}
+	tokn = newToken(token.ILLEGAL, lex.char)
+	lex.readChar()
+	return tokn
 }
 
 func (lex *Lexer) readIdentifier() string {
