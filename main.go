@@ -1,10 +1,11 @@
 package main
 
 import (
-	"Interpreter_in_Go/repl"
 	"fmt"
 	"os"
 	"os/user"
+
+	"Interpreter_in_Go/repl"
 )
 
 func main() {
