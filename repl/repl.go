@@ -11,6 +11,7 @@ import (
 
 const PROMPT = ">>"
 
+//goland:noinspection GoUnusedParameter
 func Start(input io.Reader, output io.Writer) {
 	scanner := bufio.NewScanner(input)
 
