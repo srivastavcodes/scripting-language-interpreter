@@ -23,11 +23,11 @@ func New(l *lexer.Lexer) *Parser {
 	return psr
 }
 
-func (psr *Parser) nextToken() {
-	psr.curToken = psr.peekToken
-	psr.peekToken = psr.l.NextToken()
+func (p *Parser) nextToken() {
+	p.curToken = p.peekToken
+	p.peekToken = p.l.NextToken()
 }
 
-func (psr *Parser) ParseProgram() *ast.Program {
+func (p *Parser) ParseProgram() *ast.Program {
 	return nil
 }
