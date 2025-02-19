@@ -58,6 +58,8 @@ func (psr *Parser) parseStatement() ast.Statement {
 	switch psr.curToken.Type {
 	case token.LET:
 		return psr.parseLetStatement()
+	case token.RETURN:
+		return psr.parseReturnStatement()
 	default:
 		return nil
 	}
@@ -68,11 +70,29 @@ func (psr *Parser) parseLetStatement() *ast.LetStatement {
 	if !psr.expectPeek(token.IDENT) {
 		return nil
 	}
-	stmt.Name = &ast.Identifier{Token: psr.curToken, Value: psr.curToken.Literal}
+	stmt.Name = &ast.Identifier{
+		Token: psr.curToken, Value: psr.curToken.Literal}
+
 	if !psr.expectPeek(token.ASSIGN) {
 		return nil
 	}
-	// TODO -> we are skipping the expressions until we encounter a semicolon
+	/*
+		todo: add Expression handling,
+		we are skipping the expressions until we encounter a semicolon
+	*/
+	for !psr.currentTokenIs(token.SEMICOLON) {
+		psr.nextToken()
+	}
+	return stmt
+}
+
+func (psr *Parser) parseReturnStatement() ast.Statement {
+	stmt := &ast.ReturnStatement{Token: psr.curToken}
+	psr.nextToken()
+	/*
+		todo: add Expression handling,
+		we are skipping the expression until we encounter a semicolon
+	*/
 	for !psr.currentTokenIs(token.SEMICOLON) {
 		psr.nextToken()
 	}
