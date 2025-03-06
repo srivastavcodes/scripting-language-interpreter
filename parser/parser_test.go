@@ -42,34 +42,36 @@ let foobar = 838383;
 	}
 }
 
-func checkParserErrors(tst *testing.T, psr *Parser) {
+func checkParserErrors(t *testing.T, psr *Parser) {
+	t.Helper()
 	errors := psr.Errors()
 	if len(errors) == 0 {
 		return
 	}
-	tst.Errorf("parser has %d errors", len(errors))
+	t.Errorf("parser has %d errors", len(errors))
 	for _, err := range errors {
-		tst.Errorf("parser error %q", err)
+		t.Errorf("parser error %q", err)
 	}
-	tst.FailNow()
+	t.FailNow()
 }
 
-func testLetStatement(tst *testing.T, stmt ast.Statement, name string) bool {
+func testLetStatement(t *testing.T, stmt ast.Statement, name string) bool {
+	t.Helper()
 	if stmt.TokenLiteral() != "let" {
-		tst.Errorf("stmt.TokenLiteral not 'let'. got=%q", stmt.TokenLiteral())
+		t.Errorf("stmt.TokenLiteral not 'let'. got=%q", stmt.TokenLiteral())
 		return false
 	}
 	letStmt, ok := stmt.(*ast.LetStatement)
 	if !ok {
-		tst.Errorf("stmt not *ast.LetStatement. got=%T", stmt)
+		t.Errorf("stmt not *ast.LetStatement. got=%T", stmt)
 		return false
 	}
 	if letStmt.Name.Value != name {
-		tst.Errorf("letStmt.Name.Value not '%s'. got=%s", name, letStmt.Name.Value)
+		t.Errorf("letStmt.Name.Value not '%s'. got=%s", name, letStmt.Name.Value)
 		return false
 	}
 	if letStmt.Name.TokenLiteral() != name {
-		tst.Errorf("stmt.Name not '%s'. got=%s", name, letStmt.Name)
+		t.Errorf("stmt.Name not '%s'. got=%s", name, letStmt.Name)
 		return false
 	}
 	return true
