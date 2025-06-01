@@ -23,7 +23,7 @@ func Start(input io.Reader, output io.Writer) {
 			return
 		}
 		line := scanner.Text()
-		lex := lexer.New(line)
+		lex := lexer.NewLexer(line)
 
 		for tok := lex.NextToken(); tok.Type != token.EOF; tok = lex.NextToken() {
 			fmt.Printf("%v\n", tok)

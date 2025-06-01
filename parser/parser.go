@@ -8,6 +8,17 @@ import (
 	"Interpreter_in_Go/token"
 )
 
+const (
+	_ int = iota
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // > or <
+	SUM         // +
+	PRODUCT     // *
+	PREFIX      // -x or !x
+	CALL        // myFunc(x)
+)
+
 type (
 	prefixParseFn func() ast.Expression
 	infixParseFn  func(ast.Expression) ast.Expression
@@ -24,29 +35,17 @@ type Parser struct {
 	infixParseFns  map[token.TokenType]infixParseFn
 }
 
-func New(lxr *lexer.Lexer) *Parser {
+func NewParser(lxr *lexer.Lexer) *Parser {
 	psr := &Parser{lxr: lxr, errors: []string{}}
 
 	// Read two tokens, so that curToken and peekToken are set
 	psr.nextToken()
 	psr.nextToken()
 
+	psr.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	psr.registerPrefix(token.IDENT, psr.parseIdentifier)
+
 	return psr
-}
-
-func (psr *Parser) Errors() []string {
-	return psr.errors
-}
-
-func (psr *Parser) peekError(tokn token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead",
-		tokn, psr.peekToken.Type)
-	psr.errors = append(psr.errors, msg)
-}
-
-func (psr *Parser) nextToken() {
-	psr.curToken = psr.peekToken
-	psr.peekToken = psr.lxr.NextToken()
 }
 
 func (psr *Parser) ParseProgram() *ast.Program {
@@ -70,7 +69,7 @@ func (psr *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return psr.parseReturnStatement()
 	default:
-		return nil
+		return psr.parseExpressionStatement()
 	}
 }
 
@@ -106,6 +105,44 @@ func (psr *Parser) parseReturnStatement() ast.Statement {
 		psr.nextToken()
 	}
 	return stmt
+}
+
+func (psr *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{Token: psr.curToken}
+	stmt.Expression = psr.parseExpression(LOWEST)
+
+	if psr.peekTokenIs(token.SEMICOLON) {
+		psr.nextToken()
+	}
+	return stmt
+}
+
+func (psr *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := psr.prefixParseFns[psr.curToken.Type]
+	if nil == prefix {
+		return nil
+	}
+	leftExp := prefix()
+	return leftExp
+}
+
+func (psr *Parser) parseIdentifier() ast.Expression {
+	return &ast.Identifier{Token: psr.curToken, Value: psr.curToken.Literal}
+}
+
+func (psr *Parser) Errors() []string {
+	return psr.errors
+}
+
+func (psr *Parser) peekError(tokn token.TokenType) {
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead",
+		tokn, psr.peekToken.Type)
+	psr.errors = append(psr.errors, msg)
+}
+
+func (psr *Parser) nextToken() {
+	psr.curToken = psr.peekToken
+	psr.peekToken = psr.lxr.NextToken()
 }
 
 func (psr *Parser) currentTokenIs(tokn token.TokenType) bool {

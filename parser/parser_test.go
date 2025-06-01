@@ -13,8 +13,8 @@ let x = 5;
 let y = 10;
 let foobar = 838383;
 `
-	lxr := lexer.New(input)
-	psr := New(lxr)
+	lxr := lexer.NewLexer(input)
+	psr := NewParser(lxr)
 
 	program := psr.ParseProgram()
 	checkParserErrors(tst, psr)
@@ -83,8 +83,8 @@ return 5;
 return 10;
 return 992233;
 `
-	lxr := lexer.New(input)
-	psr := New(lxr)
+	lxr := lexer.NewLexer(input)
+	psr := NewParser(lxr)
 
 	program := psr.ParseProgram()
 	checkParserErrors(tst, psr)
@@ -103,5 +103,32 @@ return 992233;
 			tst.Errorf("returnStmt.TokenLiteral() not 'return'. got=%q",
 				returnStmt.TokenLiteral())
 		}
+	}
+}
+
+func TestIdentifierExpression(t *testing.T) {
+	input := `foobar;`
+
+	lxr := lexer.NewLexer(input)
+	psr := NewParser(lxr)
+	program := psr.ParseProgram()
+	checkParserErrors(t, psr)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program does not have 1 statement. got=%d", len(program.Statements))
+	}
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", stmt)
+	}
+	ident, ok := stmt.Expression.(*ast.Identifier)
+	if !ok {
+		t.Fatalf("Expression is not *ast.Identifier. got=%T", stmt.Expression)
+	}
+	if ident.Value != "foobar" {
+		t.Errorf("ident.Value not '%s'. got=%s", "foobar", ident.Value)
+	}
+	if ident.TokenLiteral() != "foobar" {
+		t.Errorf("ident.TokenLiteral not '%s'. got=%s", "foobar", ident.TokenLiteral())
 	}
 }

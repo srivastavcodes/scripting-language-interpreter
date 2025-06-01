@@ -106,7 +106,7 @@ if (5 < 10) {
 		{token.EOF, ""},
 	}
 
-	lex := New(input)
+	lex := NewLexer(input)
 	for i, test := range tests {
 		tok := lex.NextToken()
 
