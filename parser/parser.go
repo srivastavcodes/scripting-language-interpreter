@@ -8,11 +8,20 @@ import (
 	"Interpreter_in_Go/token"
 )
 
+type (
+	prefixParseFn func() ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
+)
+
 type Parser struct {
-	lxr       *lexer.Lexer
+	lxr    *lexer.Lexer
+	errors []string
+
 	curToken  token.Token
-	errors    []string
 	peekToken token.Token
+
+	prefixParseFns map[token.TokenType]prefixParseFn
+	infixParseFns  map[token.TokenType]infixParseFn
 }
 
 func New(lxr *lexer.Lexer) *Parser {
@@ -115,4 +124,12 @@ func (psr *Parser) expectPeek(tokn token.TokenType) bool {
 		psr.peekError(tokn)
 		return false
 	}
+}
+
+func (psr *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+	psr.prefixParseFns[tokenType] = fn
+}
+
+func (psr *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	psr.infixParseFns[tokenType] = fn
 }
