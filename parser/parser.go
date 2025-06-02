@@ -20,6 +20,17 @@ const (
 	CALL        // myFunc(x)
 )
 
+var precedences = map[token.TokenType]int{
+	token.EQ:       EQUALS,
+	token.NOT_EQ:   EQUALS,
+	token.LT:       LESSGREATER,
+	token.GT:       LESSGREATER,
+	token.PLUS:     SUM,
+	token.MINUS:    SUM,
+	token.SLASH:    PRODUCT,
+	token.ASTERISK: PRODUCT,
+}
+
 type (
 	prefixParseFn func() ast.Expression
 	infixParseFn  func(ast.Expression) ast.Expression
@@ -43,13 +54,8 @@ func NewParser(lxr *lexer.Lexer) *Parser {
 	psr.nextToken()
 	psr.nextToken()
 
-	psr.prefixParseFns = make(map[token.TokenType]prefixParseFn)
-	psr.registerPrefix(token.IDENT, psr.parseIdentifier)
+	registerParseFunctions(psr)
 
-	psr.registerPrefix(token.INT, psr.parseIntegerLiteral)
-	psr.registerPrefix(token.BANG, psr.parsePrefixExpression)
-
-	psr.registerPrefix(token.MINUS, psr.parsePrefixExpression)
 	return psr
 }
 
@@ -129,6 +135,15 @@ func (psr *Parser) parseExpression(precedence int) ast.Expression {
 		return nil
 	}
 	leftExp := prefix()
+
+	for !psr.peekTokenIs(token.SEMICOLON) && precedence < psr.peekPrecedence() {
+		infix := psr.infixParseFns[psr.peekToken.Type]
+		if nil == infix {
+			return leftExp
+		}
+		psr.nextToken()
+		leftExp = infix(leftExp)
+	}
 	return leftExp
 }
 
@@ -156,6 +171,18 @@ func (psr *Parser) parsePrefixExpression() ast.Expression {
 	}
 	psr.nextToken()
 	expression.Right = psr.parseExpression(PREFIX)
+	return expression
+}
+
+func (psr *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	expression := &ast.InfixExpression{
+		Token:    psr.curToken,
+		Operator: psr.curToken.Literal,
+		Left:     left,
+	}
+	precedence := psr.curPrecedence()
+	psr.nextToken()
+	expression.Right = psr.parseExpression(precedence)
 	return expression
 }
 
@@ -197,10 +224,46 @@ func (psr *Parser) expectPeek(tokn token.TokenType) bool {
 	}
 }
 
+func (psr *Parser) peekPrecedence() int {
+	if pdc, ok := precedences[psr.peekToken.Type]; ok {
+		return pdc
+	}
+	return LOWEST
+}
+
+func (psr *Parser) curPrecedence() int {
+	if pdc, ok := precedences[psr.curToken.Type]; ok {
+		return pdc
+	}
+	return LOWEST
+}
+
 func (psr *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 	psr.prefixParseFns[tokenType] = fn
 }
 
 func (psr *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	psr.infixParseFns[tokenType] = fn
+}
+
+func registerParseFunctions(psr *Parser) {
+	psr.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	psr.registerPrefix(token.IDENT, psr.parseIdentifier)
+	psr.registerPrefix(token.INT, psr.parseIntegerLiteral)
+
+	psr.registerPrefix(token.BANG, psr.parsePrefixExpression)
+	psr.registerPrefix(token.MINUS, psr.parsePrefixExpression)
+
+	psr.infixParseFns = make(map[token.TokenType]infixParseFn)
+	psr.registerInfix(token.PLUS, psr.parseInfixExpression)
+	psr.registerInfix(token.MINUS, psr.parseInfixExpression)
+
+	psr.registerInfix(token.SLASH, psr.parseInfixExpression)
+	psr.registerInfix(token.ASTERISK, psr.parseInfixExpression)
+
+	psr.registerInfix(token.EQ, psr.parseInfixExpression)
+	psr.registerInfix(token.NOT_EQ, psr.parseInfixExpression)
+
+	psr.registerInfix(token.LT, psr.parseInfixExpression)
+	psr.registerInfix(token.GT, psr.parseInfixExpression)
 }
