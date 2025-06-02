@@ -151,6 +151,20 @@ func (psr *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{Token: psr.curToken, Value: psr.curToken.Literal}
 }
 
+func (psr *Parser) parseBoolean() ast.Expression {
+	return &ast.Boolean{Token: psr.curToken, Value: psr.currentTokenIs(token.TRUE)}
+}
+
+func (psr *Parser) parseGroupedExpression() ast.Expression {
+	psr.nextToken()
+	expr := psr.parseExpression(LOWEST)
+
+	if !psr.expectPeek(token.RPARAN) {
+		return nil
+	}
+	return expr
+}
+
 func (psr *Parser) parseIntegerLiteral() ast.Expression {
 	lit := &ast.IntegerLiteral{Token: psr.curToken}
 
@@ -165,25 +179,25 @@ func (psr *Parser) parseIntegerLiteral() ast.Expression {
 }
 
 func (psr *Parser) parsePrefixExpression() ast.Expression {
-	expression := &ast.PrefixExpression{
+	expr := &ast.PrefixExpression{
 		Token:    psr.curToken,
 		Operator: psr.curToken.Literal,
 	}
 	psr.nextToken()
-	expression.Right = psr.parseExpression(PREFIX)
-	return expression
+	expr.Right = psr.parseExpression(PREFIX)
+	return expr
 }
 
 func (psr *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
-	expression := &ast.InfixExpression{
+	expr := &ast.InfixExpression{
 		Token:    psr.curToken,
 		Operator: psr.curToken.Literal,
 		Left:     left,
 	}
 	precedence := psr.curPrecedence()
 	psr.nextToken()
-	expression.Right = psr.parseExpression(precedence)
-	return expression
+	expr.Right = psr.parseExpression(precedence)
+	return expr
 }
 
 func (psr *Parser) Errors() []string {
@@ -247,6 +261,11 @@ func (psr *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 }
 
 func registerParseFunctions(psr *Parser) {
+	registerPrefixParseFunctions(psr)
+	registerInfixParseFunctions(psr)
+}
+
+func registerPrefixParseFunctions(psr *Parser) {
 	psr.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	psr.registerPrefix(token.IDENT, psr.parseIdentifier)
 	psr.registerPrefix(token.INT, psr.parseIntegerLiteral)
@@ -254,6 +273,13 @@ func registerParseFunctions(psr *Parser) {
 	psr.registerPrefix(token.BANG, psr.parsePrefixExpression)
 	psr.registerPrefix(token.MINUS, psr.parsePrefixExpression)
 
+	psr.registerPrefix(token.TRUE, psr.parseBoolean)
+	psr.registerPrefix(token.FALSE, psr.parseBoolean)
+
+	psr.registerPrefix(token.LPARAN, psr.parseGroupedExpression)
+}
+
+func registerInfixParseFunctions(psr *Parser) {
 	psr.infixParseFns = make(map[token.TokenType]infixParseFn)
 	psr.registerInfix(token.PLUS, psr.parseInfixExpression)
 	psr.registerInfix(token.MINUS, psr.parseInfixExpression)
