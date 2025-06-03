@@ -61,13 +61,13 @@ func (lex *Lexer) NextToken() token.Token {
 	case ',':
 		tokn = newToken(token.COMMA, lex.char)
 	case '(':
-		tokn = newToken(token.LPARAN, lex.char)
+		tokn = newToken(token.L_PAREN, lex.char)
 	case ')':
-		tokn = newToken(token.RPARAN, lex.char)
+		tokn = newToken(token.R_PAREN, lex.char)
 	case '{':
-		tokn = newToken(token.LBRACE, lex.char)
+		tokn = newToken(token.L_BRACE, lex.char)
 	case '}':
-		tokn = newToken(token.RBRACE, lex.char)
+		tokn = newToken(token.R_BRACE, lex.char)
 	case 0:
 		tokn.Literal = ""
 		tokn.Type = token.EOF
