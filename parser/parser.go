@@ -200,6 +200,39 @@ func (psr *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	return expr
 }
 
+func (psr *Parser) parseIfExpression() ast.Expression {
+	expr := &ast.IfExpression{Token: psr.curToken}
+	if !psr.expectPeek(token.LPARAN) {
+		return nil
+	}
+	psr.nextToken()
+	expr.Condition = psr.parseExpression(LOWEST)
+	if !psr.expectPeek(token.RPARAN) {
+		return nil
+	}
+	if !psr.expectPeek(token.LBRACE) {
+		return nil
+	}
+	expr.Consequence = psr.parseBlockStatement()
+	return expr
+}
+
+func (psr *Parser) parseBlockStatement() *ast.BlockStatement {
+	block := &ast.BlockStatement{Token: psr.curToken}
+	block.Statements = []ast.Statement{}
+
+	psr.nextToken()
+
+	for !psr.currentTokenIs(token.RBRACE) && !psr.currentTokenIs(token.EOF) {
+		stmt := psr.parseStatement()
+		if stmt != nil {
+			block.Statements = append(block.Statements, stmt)
+		}
+		psr.nextToken()
+	}
+	return block
+}
+
 func (psr *Parser) Errors() []string {
 	return psr.errors
 }
@@ -277,6 +310,7 @@ func registerPrefixParseFunctions(psr *Parser) {
 	psr.registerPrefix(token.FALSE, psr.parseBoolean)
 
 	psr.registerPrefix(token.LPARAN, psr.parseGroupedExpression)
+	psr.registerPrefix(token.IF, psr.parseIfExpression)
 }
 
 func registerInfixParseFunctions(psr *Parser) {
