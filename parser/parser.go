@@ -214,6 +214,15 @@ func (psr *Parser) parseIfExpression() ast.Expression {
 		return nil
 	}
 	expr.Consequence = psr.parseBlockStatement()
+
+	if psr.peekTokenIs(token.ELSE) {
+		psr.nextToken()
+
+		if !psr.expectPeek(token.LBRACE) {
+			return nil
+		}
+		expr.Alternative = psr.parseBlockStatement()
+	}
 	return expr
 }
 
