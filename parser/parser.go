@@ -29,6 +29,7 @@ var precedences = map[token.TokenType]int{
 	token.MINUS:    SUM,
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
+	token.L_PAREN:  CALL,
 }
 
 type (
@@ -279,6 +280,33 @@ func (psr *Parser) parseBlockStatement() *ast.BlockStatement {
 	return block
 }
 
+func (psr *Parser) parseCallExpression(function ast.Expression) ast.Expression {
+	expr := &ast.CallExpression{Token: psr.curToken, Function: function}
+	expr.Arguments = psr.parseCallArguments()
+	return expr
+}
+
+func (psr *Parser) parseCallArguments() []ast.Expression {
+	var args []ast.Expression
+
+	if psr.peekTokenIs(token.R_PAREN) {
+		psr.nextToken()
+		return args
+	}
+	psr.nextToken()
+	args = append(args, psr.parseExpression(LOWEST))
+
+	for psr.peekTokenIs(token.COMMA) {
+		psr.nextToken()
+		psr.nextToken()
+		args = append(args, psr.parseExpression(LOWEST))
+	}
+	if !psr.expectPeek(token.R_PAREN) {
+		return nil
+	}
+	return args
+}
+
 func (psr *Parser) Errors() []string {
 	return psr.errors
 }
@@ -369,4 +397,5 @@ func registerInfixParseFunctions(psr *Parser) {
 	psr.registerInfix(token.NOT_EQ, psr.parseInfixExpression)
 	psr.registerInfix(token.LT, psr.parseInfixExpression)
 	psr.registerInfix(token.GT, psr.parseInfixExpression)
+	psr.registerInfix(token.L_PAREN, psr.parseCallExpression)
 }
