@@ -8,16 +8,18 @@ type Token struct {
 	Literal string
 }
 
-//goland:noinspection GoCommentStart,GoSnakeCaseUsage
+//goland:noinspection GoSnakeCaseUsage
 const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
 
 	// Identifiers and literals
+
 	IDENT = "IDENT" // add, foobar, x, y...
 	INT   = "INT"   // 12345...
 
 	// Operators
+
 	ASSIGN   = "="
 	PLUS     = "+"
 	MINUS    = "-"
@@ -32,6 +34,7 @@ const (
 	GT = ">"
 
 	// Delimiters
+
 	COMMA     = ","
 	SEMICOLON = ";"
 
@@ -41,6 +44,7 @@ const (
 	R_BRACE = "}"
 
 	// Keywords
+
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
 	TRUE     = "TRUE"

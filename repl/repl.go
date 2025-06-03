@@ -1,32 +1,59 @@
 package repl
 
 import (
+	"Interpreter_in_Go/parser"
 	"bufio"
 	"fmt"
 	"io"
 
 	"Interpreter_in_Go/lexer"
-	"Interpreter_in_Go/token"
 )
 
 const PROMPT = ">>"
 
-//goland:noinspection GoUnusedParameter
+//goland:noinspection GoSnakeCaseUsage
+const MONKEY_FACE = `
+           __,__
+  .--.  .-"     "-.  .--.
+ / .. \/  .-. .-.  \/ .. \
+| |  '|  /   Y   \  |'  | |
+| \   \  \ 0 | 0 /  /   / |
+ \ '- ,\.-"""""""-./, -' /
+  ''-' /_   ^ ^   _\ '-''
+      |  \._   _./  |
+      \   \ '~' /   /
+       '._ '-=-' _.'
+          '-----'
+`
+
 func Start(input io.Reader, output io.Writer) {
 	scanner := bufio.NewScanner(input)
 
 	for {
 		fmt.Printf(PROMPT)
 		scanned := scanner.Scan()
-
 		if !scanned {
 			return
 		}
 		line := scanner.Text()
 		lex := lexer.NewLexer(line)
+		psr := parser.NewParser(lex)
 
-		for tok := lex.NextToken(); tok.Type != token.EOF; tok = lex.NextToken() {
-			fmt.Printf("%v\n", tok)
+		program := psr.ParseProgram()
+		if len(psr.Errors()) != 0 {
+			printParserErrors(output, psr.Errors())
+			continue
 		}
+		_, _ = io.WriteString(output, program.String())
+		_, _ = io.WriteString(output, "\n")
+	}
+}
+
+func printParserErrors(output io.Writer, errors []string) {
+	_, _ = io.WriteString(output, MONKEY_FACE)
+	_, _ = io.WriteString(output, "Parser Errors:\n")
+
+	for _, err := range errors {
+		_, _ = io.WriteString(output, "\t"+err+"\n")
 	}
 }

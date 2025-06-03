@@ -90,30 +90,26 @@ func (psr *Parser) parseLetStatement() *ast.LetStatement {
 	if !psr.expectPeek(token.IDENT) {
 		return nil
 	}
-	stmt.Name = &ast.Identifier{
-		Token: psr.curToken, Value: psr.curToken.Literal}
+	stmt.Name = &ast.Identifier{Token: psr.curToken, Value: psr.curToken.Literal}
 
 	if !psr.expectPeek(token.ASSIGN) {
 		return nil
 	}
-	/*
-		todo: add Expression handling,
-		we are skipping the expressions until we encounter a semicolon
-	*/
-	for !psr.currentTokenIs(token.SEMICOLON) {
+	psr.nextToken()
+	stmt.Value = psr.parseExpression(LOWEST)
+
+	if psr.peekTokenIs(token.SEMICOLON) {
 		psr.nextToken()
 	}
 	return stmt
 }
 
-func (psr *Parser) parseReturnStatement() ast.Statement {
+func (psr *Parser) parseReturnStatement() *ast.ReturnStatement {
 	stmt := &ast.ReturnStatement{Token: psr.curToken}
 	psr.nextToken()
-	/*
-		todo: add Expression handling,
-		we are skipping the expression until we encounter a semicolon
-	*/
-	for !psr.currentTokenIs(token.SEMICOLON) {
+	stmt.ReturnValue = psr.parseExpression(LOWEST)
+
+	if psr.peekTokenIs(token.SEMICOLON) {
 		psr.nextToken()
 	}
 	return stmt
