@@ -25,17 +25,17 @@ type Program struct {
 	Statements []Statement
 }
 
-func (p *Program) TokenLiteral() string {
-	if len(p.Statements) > 0 {
-		return p.Statements[0].TokenLiteral()
+func (pgr *Program) TokenLiteral() string {
+	if len(pgr.Statements) > 0 {
+		return pgr.Statements[0].TokenLiteral()
 	}
 	return ""
 }
 
-func (p *Program) String() string {
+func (pgr *Program) String() string {
 	var out bytes.Buffer
 
-	for _, stmt := range p.Statements {
+	for _, stmt := range pgr.Statements {
 		out.WriteString(stmt.String())
 	}
 	return out.String()
@@ -90,11 +90,11 @@ type Identifier struct {
 	Value string
 }
 
-func (i *Identifier) expressionNode() {}
+func (id *Identifier) expressionNode() {}
 
-func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
+func (id *Identifier) TokenLiteral() string { return id.Token.Literal }
 
-func (i *Identifier) String() string { return i.Value }
+func (id *Identifier) String() string { return id.Value }
 
 type ExpressionStatement struct {
 	Token      token.Token // the first token of the expression
