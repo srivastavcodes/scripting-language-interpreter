@@ -363,6 +363,7 @@ func (psr *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	psr.infixParseFns[tokenType] = fn
 }
 
+// make this a method
 func registerParseFunctions(psr *Parser) {
 	registerPrefixParseFunctions(psr)
 	registerInfixParseFunctions(psr)

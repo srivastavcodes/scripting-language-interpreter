@@ -11,21 +11,6 @@ import (
 
 const PROMPT = ">>"
 
-//goland:noinspection GoSnakeCaseUsage
-const MONKEY_FACE = `
-           __,__
-  .--.  .-"     "-.  .--.
- / .. \/  .-. .-.  \/ .. \
-| |  '|  /   Y   \  |'  | |
-| \   \  \ 0 | 0 /  /   / |
- \ '- ,\.-"""""""-./, -' /
-  ''-' /_   ^ ^   _\ '-''
-      |  \._   _./  |
-      \   \ '~' /   /
-       '._ '-=-' _.'
-          '-----'
-`
-
 func Start(input io.Reader, output io.Writer) {
 	scanner := bufio.NewScanner(input)
 
@@ -50,7 +35,6 @@ func Start(input io.Reader, output io.Writer) {
 }
 
 func printParserErrors(output io.Writer, errors []string) {
-	_, _ = io.WriteString(output, MONKEY_FACE)
 	_, _ = io.WriteString(output, "Parser Errors:\n")
 
 	for _, err := range errors {
