@@ -1,6 +1,5 @@
 package token
 
-//goland:noinspection GoNameStartsWithPackageName
 type TokenType string
 
 type Token struct {
