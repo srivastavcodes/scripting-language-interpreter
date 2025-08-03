@@ -7,7 +7,6 @@ type Token struct {
 	Literal string
 }
 
-//goland:noinspection GoSnakeCaseUsage
 const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
