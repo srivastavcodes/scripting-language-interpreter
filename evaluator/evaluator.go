@@ -13,14 +13,12 @@ var (
 
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
-	// Statements
-	case *ast.Program:
+	case *ast.Program: // Statements
 		return evalStatements(node.Statements)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
 
-	// Expressions
-	case *ast.IntegerLiteral:
+	case *ast.IntegerLiteral: // Expressions
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
 		return boolNativeToBoolObject(node.Value)
