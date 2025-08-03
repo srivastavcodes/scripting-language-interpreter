@@ -1,6 +1,7 @@
 package repl
 
 import (
+	"Interpreter_in_Go/evaluator"
 	"Interpreter_in_Go/parser"
 	"bufio"
 	"fmt"
@@ -29,8 +30,11 @@ func Start(input io.Reader, output io.Writer) {
 			printParserErrors(output, psr.Errors())
 			continue
 		}
-		_, _ = io.WriteString(output, program.String())
-		_, _ = io.WriteString(output, "\n")
+		evaluated := evaluator.Eval(program)
+		if evaluated != nil {
+			_, _ = io.WriteString(output, evaluated.Inspect())
+			_, _ = io.WriteString(output, "\n")
+		}
 	}
 }
 
