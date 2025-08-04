@@ -15,13 +15,13 @@ var (
 func Evaluate(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.RootStatement:
-		return evalRootStatement(node)
+		return evalRootStatement(node, env)
 	case *ast.LetStatement:
 		value := Evaluate(node.Value, env)
 		if isError(value) {
 			return value
 		}
-		return env.Set(node.Name.Value, value)
+		env.Set(node.Name.Value, value)
 	case *ast.ExpressionStatement:
 		return Evaluate(node.Expression, env)
 	case *ast.ReturnStatement:
@@ -56,17 +56,15 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 		return evalInfixExpression(node.Operator, lt, rt)
 
 	case *ast.BlockStatement:
-		return evalBlockStatement(node)
+		return evalBlockStatement(node, env)
 	case *ast.IfExpression:
-		return evalConditionalExpression(node)
-	default:
-		return nil
+		return evalConditionalExpression(node, env)
 	}
+	return nil
 }
 
-func evalRootStatement(root *ast.RootStatement) object.Object {
+func evalRootStatement(root *ast.RootStatement, env *object.Environment) object.Object {
 	var result object.Object
-	env := object.NewEnvironment()
 
 	for _, stmt := range root.Statements {
 		result = Evaluate(stmt, env)
@@ -81,9 +79,8 @@ func evalRootStatement(root *ast.RootStatement) object.Object {
 	return result
 }
 
-func evalBlockStatement(block *ast.BlockStatement) object.Object {
+func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) object.Object {
 	var result object.Object
-	env := object.NewEnvironment()
 
 	for _, stmt := range block.Statements {
 		result = Evaluate(stmt, env)
@@ -159,9 +156,7 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	}
 }
 
-func evalConditionalExpression(ie *ast.IfExpression) object.Object {
-	env := object.NewEnvironment()
-
+func evalConditionalExpression(ie *ast.IfExpression, env *object.Environment) object.Object {
 	condition := Evaluate(ie.Condition, env)
 	if isError(condition) {
 		return condition
