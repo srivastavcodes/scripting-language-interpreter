@@ -30,6 +30,16 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 			return reVal
 		}
 		return &object.Return{Value: reVal}
+	case *ast.CallExpression:
+		fn := Evaluate(node.Function, env)
+		if isError(fn) {
+			return fn
+		}
+		args := evalCallExpressions(node.Arguments, env)
+		if len(args) == 1 && isError(args[0]) {
+			return args[0]
+		}
+		return applyFunction(fn, args)
 
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
@@ -59,6 +69,10 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 		return evalBlockStatement(node, env)
 	case *ast.IfExpression:
 		return evalConditionalExpression(node, env)
+	case *ast.FunctionLiteral:
+		params := node.Parameters
+		body := node.Body
+		return &object.Function{Parameters: params, Body: body, Env: env}
 	}
 	return nil
 }
@@ -91,6 +105,19 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 				return result
 			}
 		}
+	}
+	return result
+}
+
+func evalCallExpressions(args []ast.Expression, env *object.Environment) []object.Object {
+	var result []object.Object
+
+	for _, arg := range args {
+		value := Evaluate(arg, env)
+		if isError(value) {
+			return []object.Object{value}
+		}
+		result = append(result, value)
 	}
 	return result
 }
@@ -191,8 +218,8 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 	}
 }
 
-func isTruthy(obj object.Object) bool {
-	switch obj {
+func isTruthy(ob object.Object) bool {
+	switch ob {
 	case NULL:
 		return false
 	case TRUE:
@@ -221,4 +248,30 @@ func isError(ob object.Object) bool {
 		return ob.Type() == object.ERROR_OBJ
 	}
 	return false
+}
+
+func applyFunction(fnc object.Object, args []object.Object) object.Object {
+	fn, ok := fnc.(*object.Function)
+	if !ok {
+		return createError("not a function: %s", fnc.Type())
+	}
+	extendedEnv := extendFunctionEnv(fn, args)
+	value := Evaluate(fn.Body, extendedEnv)
+	return unwrapReturnValue(value)
+}
+
+func unwrapReturnValue(ob object.Object) object.Object {
+	if returnValue, ok := ob.(*object.Return); ok {
+		return returnValue.Value
+	}
+	return ob
+}
+
+func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environment {
+	env := object.NewEnclosedEnvironment(fn.Env)
+
+	for pIdx, param := range fn.Parameters {
+		env.Set(param.Value, args[pIdx]) // binds args to param names with the help of param-index
+	}
+	return env
 }

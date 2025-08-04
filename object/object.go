@@ -1,6 +1,11 @@
 package object
 
-import "fmt"
+import (
+	"Interpreter_in_Go/ast"
+	"bytes"
+	"fmt"
+	"strings"
+)
 
 type ObjectType string
 
@@ -16,6 +21,7 @@ const (
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	ERROR_OBJ        = "ERROR"
+	FUNCTION_OBJ     = "FUNCTION"
 )
 
 type Object interface {
@@ -63,20 +69,26 @@ func (er *Error) Inspect() string {
 	return fmt.Sprintf("%sERROR::%s %s", COLOR_RED, COLOR_RESET, er.Message)
 }
 
-type Environment struct {
-	store map[string]Object
+type Function struct {
+	Parameters []*ast.Identifier
+	Env        *Environment
+	Body       *ast.BlockStatement
 }
 
-func NewEnvironment() *Environment {
-	return &Environment{store: make(map[string]Object)}
-}
+func (fn *Function) Type() ObjectType { return FUNCTION_OBJ }
 
-func (env *Environment) Get(name string) (Object, bool) {
-	obj, ok := env.store[name]
-	return obj, ok
-}
+func (fn *Function) Inspect() string {
+	var output bytes.Buffer
+	var params []string
 
-func (env *Environment) Set(name string, val Object) Object {
-	env.store[name] = val
-	return val
+	for _, pr := range fn.Parameters {
+		params = append(params, pr.String())
+	}
+	output.WriteString("fn(")
+	output.WriteString(strings.Join(params, ", "))
+	output.WriteString(") {\n")
+	output.WriteString(fn.Body.String())
+	output.WriteString("\n")
+
+	return output.String()
 }
