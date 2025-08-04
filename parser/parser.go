@@ -60,18 +60,18 @@ func NewParser(lxr *lexer.Lexer) *Parser {
 	return psr
 }
 
-func (psr *Parser) ParseProgram() *ast.Program {
-	program := &ast.Program{}
-	program.Statements = []ast.Statement{}
+func (psr *Parser) ParseRootStatement() *ast.RootStatement {
+	root := &ast.RootStatement{}
+	root.Statements = []ast.Statement{}
 
 	for !psr.currentTokenIs(token.EOF) {
 		stmt := psr.parseStatement()
 		if stmt != nil {
-			program.Statements = append(program.Statements, stmt)
+			root.Statements = append(root.Statements, stmt)
 		}
 		psr.nextToken()
 	}
-	return program
+	return root
 }
 
 func (psr *Parser) parseStatement() ast.Statement {

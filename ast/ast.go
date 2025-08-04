@@ -21,18 +21,18 @@ type Expression interface {
 	expressionNode()
 }
 
-type Program struct {
+type RootStatement struct {
 	Statements []Statement
 }
 
-func (pgr *Program) TokenLiteral() string {
+func (pgr *RootStatement) TokenLiteral() string {
 	if len(pgr.Statements) > 0 {
 		return pgr.Statements[0].TokenLiteral()
 	}
 	return ""
 }
 
-func (pgr *Program) String() string {
+func (pgr *RootStatement) String() string {
 	var out bytes.Buffer
 
 	for _, stmt := range pgr.Statements {
