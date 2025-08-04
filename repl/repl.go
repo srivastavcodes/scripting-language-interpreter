@@ -2,6 +2,7 @@ package repl
 
 import (
 	"Interpreter_in_Go/evaluator"
+	"Interpreter_in_Go/object"
 	"Interpreter_in_Go/parser"
 	"bufio"
 	"fmt"
@@ -14,23 +15,24 @@ const PROMPT = ">>"
 
 func Start(input io.Reader, output io.Writer) {
 	scanner := bufio.NewScanner(input)
+	env := object.NewEnvironment()
 
 	for {
 		fmt.Printf(PROMPT)
-		scanned := scanner.Scan()
-		if !scanned {
+		ok := scanner.Scan()
+		if !ok {
 			return
 		}
-		line := scanner.Text()
-		lex := lexer.NewLexer(line)
-		psr := parser.NewParser(lex)
+		scanned := scanner.Text()
+		lxr := lexer.NewLexer(scanned)
+		psr := parser.NewParser(lxr)
 
-		program := psr.ParseProgram()
+		root := psr.ParseRootStatement()
 		if len(psr.Errors()) != 0 {
 			printParserErrors(output, psr.Errors())
 			continue
 		}
-		evaluated := evaluator.Eval(program)
+		evaluated := evaluator.Evaluate(root, env)
 		if evaluated != nil {
 			_, _ = io.WriteString(output, evaluated.Inspect())
 			_, _ = io.WriteString(output, "\n")
