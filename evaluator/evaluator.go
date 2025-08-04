@@ -16,16 +16,14 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	case *ast.RootStatement:
 		return evalRootStatement(node)
-	case *ast.ExpressionStatement:
-		return Evaluate(node.Expression, env)
-	case *ast.BlockStatement:
-		return evalBlockStatement(node)
 	case *ast.LetStatement:
 		value := Evaluate(node.Value, env)
 		if isError(value) {
 			return value
 		}
 		return env.Set(node.Name.Value, value)
+	case *ast.ExpressionStatement:
+		return Evaluate(node.Expression, env)
 	case *ast.ReturnStatement:
 		reVal := Evaluate(node.ReturnValue, env)
 		if isError(reVal) {
@@ -57,6 +55,8 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 		}
 		return evalInfixExpression(node.Operator, lt, rt)
 
+	case *ast.BlockStatement:
+		return evalBlockStatement(node)
 	case *ast.IfExpression:
 		return evalConditionalExpression(node)
 	default:
