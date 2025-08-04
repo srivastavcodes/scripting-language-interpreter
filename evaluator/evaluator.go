@@ -13,12 +13,12 @@ var (
 
 func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
-	case *ast.Program: // Statements
+	case *ast.Program:
 		return evalStatements(node.Statements)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
 
-	case *ast.IntegerLiteral: // Expressions
+	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	case *ast.Boolean:
 		return boolNativeToBoolObject(node.Value)
@@ -27,9 +27,9 @@ func Eval(node ast.Node) object.Object {
 		right := Eval(node.Right)
 		return evalPrefixExpression(node.Operator, right)
 	case *ast.InfixExpression:
-		left := Eval(node.Left)
-		right := Eval(node.Right)
-		return evalInfixExpression(node.Operator, left, right)
+		lt := Eval(node.Left)
+		rt := Eval(node.Right)
+		return evalInfixExpression(node.Operator, lt, rt)
 	default:
 		return nil
 	}
@@ -67,6 +67,10 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	switch {
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
+	case operator == "==":
+		return boolNativeToBoolObject(left == right)
+	case operator == "!=":
+		return boolNativeToBoolObject(left != right)
 	default:
 		return NULL
 	}
@@ -85,6 +89,15 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 		return &object.Integer{Value: ltVal * rtVal}
 	case "/":
 		return &object.Integer{Value: ltVal / rtVal}
+
+	case "<":
+		return boolNativeToBoolObject(ltVal < rtVal)
+	case ">":
+		return boolNativeToBoolObject(ltVal > rtVal)
+	case "==":
+		return boolNativeToBoolObject(ltVal == rtVal)
+	case "!=":
+		return boolNativeToBoolObject(ltVal != rtVal)
 	default:
 		return NULL
 	}
