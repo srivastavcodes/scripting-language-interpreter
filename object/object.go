@@ -5,6 +5,12 @@ import "fmt"
 type ObjectType string
 
 const (
+	COLOR_RED   = "\033[31m"
+	COLOR_RESET = "\033[0m"
+	// COLOR_GREEN = "\033[32m"
+)
+
+const (
 	INTEGER_OBJ      = "INTEGER"
 	BOOLEAN_OBJ      = "BOOLEAN"
 	NULL_OBJ         = "NULL"
@@ -53,7 +59,9 @@ type Error struct {
 
 func (er *Error) Type() ObjectType { return ERROR_OBJ }
 
-func (er *Error) Inspect() string { return "ERROR" + er.Message }
+func (er *Error) Inspect() string {
+	return fmt.Sprintf("%sERROR::%s %s", COLOR_RED, COLOR_RESET, er.Message)
+}
 
 type Environment struct {
 	store map[string]Object
