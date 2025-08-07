@@ -35,11 +35,14 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 		if isError(fn) {
 			return fn
 		}
-		args := evalCallExpressions(node.Arguments, env)
+		args := evalListExpression(node.Arguments, env)
 		if len(args) == 1 && isError(args[0]) {
 			return args[0]
 		}
 		return applyFunction(fn, args)
+
+	case *ast.Identifier:
+		return evalIdentifier(node, env)
 
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
@@ -47,9 +50,12 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 		return &object.String{Value: node.Value}
 	case *ast.Boolean:
 		return boolNativeToBoolObject(node.Value)
-
-	case *ast.Identifier:
-		return evalIdentifier(node, env)
+	case *ast.ArrayLiteral:
+		values := evalListExpression(node.Elements, env)
+		if len(values) == 1 && isError(values[0]) {
+			return values[0]
+		}
+		return &object.Array{Elements: values}
 
 	case *ast.PrefixExpression:
 		right := Evaluate(node.Right, env)
@@ -67,6 +73,16 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 			return rt
 		}
 		return evalInfixExpression(node.Operator, lt, rt)
+	case *ast.IndexExpression:
+		lt := Evaluate(node.Left, env)
+		if isError(lt) {
+			return lt
+		}
+		idx := Evaluate(node.Index, env)
+		if isError(idx) {
+			return idx
+		}
+		return evalIndexExpression(lt, idx)
 
 	case *ast.BlockStatement:
 		return evalBlockStatement(node, env)
@@ -112,7 +128,7 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 	return result
 }
 
-func evalCallExpressions(args []ast.Expression, env *object.Environment) []object.Object {
+func evalListExpression(args []ast.Expression, env *object.Environment) []object.Object {
 	var result []object.Object
 
 	for _, arg := range args {
@@ -123,6 +139,26 @@ func evalCallExpressions(args []ast.Expression, env *object.Environment) []objec
 		result = append(result, value)
 	}
 	return result
+}
+
+func evalIndexExpression(lt, idx object.Object) object.Object {
+	switch {
+	case lt.Type() == object.ARRAY_OBJ && idx.Type() == object.INTEGER_OBJ:
+		return evalArrayIndexExpression(lt, idx)
+	default:
+		return createError("index operator not supported %s", lt.Type())
+	}
+}
+
+func evalArrayIndexExpression(arr, idx object.Object) object.Object {
+	index := idx.(*object.Integer).Value
+	array := arr.(*object.Array)
+
+	last := int64(len(array.Elements) - 1)
+	if index < 0 || index > last {
+		return NULL
+	}
+	return array.Elements[index]
 }
 
 func evalIdentifier(id *ast.Identifier, env *object.Environment) object.Object {
