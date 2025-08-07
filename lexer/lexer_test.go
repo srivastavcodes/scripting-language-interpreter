@@ -44,7 +44,7 @@ if (5 < 10) {
 		{token.LET, "let"},
 		{token.IDENT, "add"},
 		{token.ASSIGN, "="},
-		{token.FUNCTION, "fn"},
+		{token.FUNCTION, "func"},
 		{token.L_PAREN, "("},
 		{token.IDENT, "x"},
 		{token.COMMA, ","},
