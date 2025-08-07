@@ -37,10 +37,12 @@ const (
 	COMMA     = ","
 	SEMICOLON = ";"
 
-	L_PAREN = "("
-	R_PAREN = ")"
-	L_BRACE = "{"
-	R_BRACE = "}"
+	L_PAREN   = "("
+	R_PAREN   = ")"
+	L_BRACE   = "{"
+	R_BRACE   = "}"
+	L_BRACKET = "["
+	R_BRACKET = "]"
 
 	// Keywords
 

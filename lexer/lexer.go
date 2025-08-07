@@ -71,6 +71,10 @@ func (lex *Lexer) NextToken() token.Token {
 	case '"':
 		tokn.Type = token.STRING
 		tokn.Literal = lex.readString()
+	case '[':
+		tokn = newToken(token.L_BRACKET, lex.char)
+	case ']':
+		tokn = newToken(token.R_BRACKET, lex.char)
 	case 0:
 		tokn.Literal = ""
 		tokn.Type = token.EOF
