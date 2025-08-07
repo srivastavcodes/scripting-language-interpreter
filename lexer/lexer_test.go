@@ -11,7 +11,7 @@ func TestNextToken(t *testing.T) {
 let five = 5;
 let ten = 10;
 
-let add = fn(x,y) {
+let add = func(x,y) {
 	x + y;
 };
 let result = add(five, ten);
