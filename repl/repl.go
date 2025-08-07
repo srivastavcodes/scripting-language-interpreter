@@ -41,7 +41,8 @@ func Start(input io.Reader, output io.Writer) {
 }
 
 func printParserErrors(output io.Writer, errors []string) {
-	_, _ = io.WriteString(output, "Parser Errors:\n")
+	errMsg := fmt.Sprintf("%sParser ERROR::%s\n", object.COLOR_RED, object.COLOR_RESET)
+	_, _ = io.WriteString(output, errMsg)
 
 	for _, err := range errors {
 		_, _ = io.WriteString(output, "\t"+err+"\n")
