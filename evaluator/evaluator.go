@@ -148,10 +148,15 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	switch {
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
+
 	case operator == "==":
 		return boolNativeToBoolObject(left == right)
 	case operator == "!=":
 		return boolNativeToBoolObject(left != right)
+
+	case left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ:
+		return evalStringInfixExpression(operator, left, right)
+
 	case left.Type() != right.Type():
 		return createError("type mismatch: %s %s %s", left.Type(), operator, right.Type())
 	default:
@@ -159,9 +164,9 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 	}
 }
 
-func evalIntegerInfixExpression(operator string, left, right object.Object) object.Object {
-	ltVal := left.(*object.Integer).Value
-	rtVal := right.(*object.Integer).Value
+func evalIntegerInfixExpression(operator string, lt, rt object.Object) object.Object {
+	ltVal := lt.(*object.Integer).Value
+	rtVal := rt.(*object.Integer).Value
 
 	switch operator {
 	case "+":
@@ -182,7 +187,23 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 	case "!=":
 		return boolNativeToBoolObject(ltVal != rtVal)
 	default:
-		return createError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
+		return createError("unknown operator: %s %s %s", lt.Type(), operator, rt.Type())
+	}
+}
+
+func evalStringInfixExpression(operator string, lt, rt object.Object) object.Object {
+	ltVal := lt.(*object.String).Value
+	rtVal := rt.(*object.String).Value
+
+	switch operator {
+	case "==":
+		return boolNativeToBoolObject(ltVal == rtVal)
+	case "+":
+		return &object.String{Value: ltVal + rtVal}
+	case "!=":
+		return boolNativeToBoolObject(ltVal != rtVal)
+	default:
+		return createError("unknown operator: %s %s %s", lt.Type(), operator, rt.Type())
 	}
 }
 
