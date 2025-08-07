@@ -2,7 +2,6 @@ package object
 
 import (
 	"Interpreter_in_Go/ast"
-	"bytes"
 	"fmt"
 	"strings"
 )
@@ -90,17 +89,16 @@ type Function struct {
 func (fn *Function) Type() ObjectType { return FUNCTION_OBJ }
 
 func (fn *Function) Inspect() string {
-	var output bytes.Buffer
+	var output strings.Builder
 	var params []string
 
 	for _, pr := range fn.Parameters {
 		params = append(params, pr.String())
 	}
-	output.WriteString("fn(")
+	output.WriteString("func(")
 	output.WriteString(strings.Join(params, ", "))
 	output.WriteString(") {\n")
-	output.WriteString(fn.Body.String())
-	output.WriteString("\n")
+	output.WriteString(fn.Body.String() + "\n")
 
 	return output.String()
 }
