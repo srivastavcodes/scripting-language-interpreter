@@ -47,6 +47,7 @@ func Evaluate(node ast.Node, env *object.Environment) object.Object {
 		return &object.String{Value: node.Value}
 	case *ast.Boolean:
 		return boolNativeToBoolObject(node.Value)
+
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 
