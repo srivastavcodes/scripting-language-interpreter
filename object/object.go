@@ -9,6 +9,8 @@ import (
 
 type ObjectType string
 
+type BuiltInFunction func(args ...Object) Object
+
 const (
 	COLOR_RED   = "\033[31m"
 	COLOR_RESET = "\033[0m"
@@ -23,6 +25,7 @@ const (
 	ERROR_OBJ        = "ERROR"
 	FUNCTION_OBJ     = "FUNCTION"
 	STRING_OBJ       = "STRING"
+	BUILTIN_OBJ      = "BUILTIN"
 )
 
 type Object interface {
@@ -101,3 +104,11 @@ func (fn *Function) Inspect() string {
 
 	return output.String()
 }
+
+type BuiltIn struct {
+	Func BuiltInFunction
+}
+
+func (bl *BuiltIn) Type() ObjectType { return BUILTIN_OBJ }
+
+func (bl *BuiltIn) Inspect() string { return "builtin function" }

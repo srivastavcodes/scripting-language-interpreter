@@ -126,11 +126,13 @@ func evalCallExpressions(args []ast.Expression, env *object.Environment) []objec
 }
 
 func evalIdentifier(id *ast.Identifier, env *object.Environment) object.Object {
-	val, ok := env.Get(id.Value)
-	if !ok {
-		return createError("identifier not found: %s", id.Value)
+	if builtIn, ok := builtIns[id.Value]; ok {
+		return builtIn
 	}
-	return val
+	if val, ok := env.Get(id.Value); ok {
+		return val
+	}
+	return createError("Identifier '" + id.Value + "' not found")
 }
 
 func evalPrefixExpression(operator string, right object.Object) object.Object {
@@ -274,14 +276,16 @@ func isError(ob object.Object) bool {
 	return false
 }
 
-func applyFunction(fnc object.Object, args []object.Object) object.Object {
-	fn, ok := fnc.(*object.Function)
-	if !ok {
-		return createError("not a function: %s", fnc.Type())
+func applyFunction(fun object.Object, args []object.Object) object.Object {
+	switch fn := fun.(type) {
+	case *object.Function:
+		evalOb := Evaluate(fn.Body, extendFunctionEnv(fn, args))
+		return unwrapReturnValue(evalOb)
+	case *object.BuiltIn:
+		return fn.Func(args...)
+	default:
+		return createError("unknown function: %s", fn.Type())
 	}
-	extendedEnv := extendFunctionEnv(fn, args)
-	value := Evaluate(fn.Body, extendedEnv)
-	return unwrapReturnValue(value)
 }
 
 func unwrapReturnValue(ob object.Object) object.Object {
