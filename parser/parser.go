@@ -175,6 +175,10 @@ func (psr *Parser) parseIntegerLiteral() ast.Expression {
 	return lit
 }
 
+func (psr *Parser) parseStringLiteral() ast.Expression {
+	return &ast.StringLiteral{Token: psr.curToken, Value: psr.curToken.Literal}
+}
+
 func (psr *Parser) parsePrefixExpression() ast.Expression {
 	expr := &ast.PrefixExpression{
 		Token:    psr.curToken,
@@ -374,6 +378,7 @@ func registerPrefixParseFunctions(psr *Parser) {
 
 	psr.registerPrefix(token.IDENT, psr.parseIdentifier)
 	psr.registerPrefix(token.INT, psr.parseIntegerLiteral)
+	psr.registerPrefix(token.STRING, psr.parseStringLiteral)
 	psr.registerPrefix(token.BANG, psr.parsePrefixExpression)
 	psr.registerPrefix(token.MINUS, psr.parsePrefixExpression)
 	psr.registerPrefix(token.TRUE, psr.parseBoolean)

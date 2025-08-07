@@ -68,6 +68,9 @@ func (lex *Lexer) NextToken() token.Token {
 		tokn = newToken(token.L_BRACE, lex.char)
 	case '}':
 		tokn = newToken(token.R_BRACE, lex.char)
+	case '"':
+		tokn.Type = token.STRING
+		tokn.Literal = lex.readString()
 	case 0:
 		tokn.Literal = ""
 		tokn.Type = token.EOF
@@ -94,6 +97,17 @@ func (lex *Lexer) readTwoCharToken(expectedChar byte, twoCharType,
 		return token.Token{Type: twoCharType, Literal: string(char) + string(lex.char)}
 	}
 	return newToken(singleCharType, lex.char)
+}
+
+func (lex *Lexer) readString() string {
+	position := lex.position + 1
+	for {
+		lex.readChar()
+		if lex.char == '"' || lex.char == 0 {
+			break
+		}
+	}
+	return lex.input[position:lex.position]
 }
 
 func (lex *Lexer) readDefaultToken() token.Token {

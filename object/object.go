@@ -12,7 +12,7 @@ type ObjectType string
 const (
 	COLOR_RED   = "\033[31m"
 	COLOR_RESET = "\033[0m"
-	// COLOR_GREEN = "\033[32m"
+	// todo -> add support for logging same as 'puts' with COLOR_GREEN = "\033[32m"
 )
 
 const (
@@ -22,6 +22,7 @@ const (
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 	ERROR_OBJ        = "ERROR"
 	FUNCTION_OBJ     = "FUNCTION"
+	STRING_OBJ       = "STRING"
 )
 
 type Object interface {
@@ -36,6 +37,14 @@ type Integer struct {
 func (ig *Integer) Type() ObjectType { return INTEGER_OBJ }
 
 func (ig *Integer) Inspect() string { return fmt.Sprintf("%d", ig.Value) }
+
+type String struct {
+	Value string
+}
+
+func (s *String) Type() ObjectType { return STRING_OBJ }
+
+func (s *String) Inspect() string { return s.Value }
 
 type Boolean struct {
 	Value bool
