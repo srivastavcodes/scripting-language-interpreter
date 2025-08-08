@@ -1,18 +1,22 @@
-# Interpreter-in-Go
+# Flint
 
-This repository contains my implementation of an interpreter for a programming language as I follow the book *Writing an
-Interpreter in Go* by Thorsten Ball. The project involves building a lexer, parser, and evaluator for a simple language.
+This repository contains my implementation of an interpreter and compiler for a programming language as I follow the book
+*Interpreter and Compiler in Go* by Thorsten Ball.
 
 ## Project Overview
 
-This project is an interpreter for the Monkey programming language. The implementation consists of several key components:
+This project is an implementation for the custom programming language. The implementation consists of several key components:
 
-* **Lexical Analysis (Lexer)**: Breaks the input source code into tokens.
-* **Parsing**: Converts the tokens into an Abstract Syntax Tree (AST).
-* **Evaluation**: Interprets and executes the AST.
+- **Lexical Analysis (Lexer)**: Breaks the input source code into tokens.
+- **Parsing**: Converts the tokens into an Abstract Syntax Tree (AST).
+- **Evaluation**: Interprets and executes the AST.
+- **ByteCode Compilation**: *Implementation in progress*
+- **Virtual Machine**: *Implementation in progress*
 
 ## Directory Structure
+
 *subject to change*
+
 ```
 ├── ast/        # Abstract Syntax Tree implementation
 ├── evaluator/  # Code for evaluating the AST
@@ -30,19 +34,19 @@ This project is an interpreter for the Monkey programming language. The implemen
 Ensure you have Go installed on your system. Then clone the repository and run the interpreter as follows:
 
 ```bash
-git clone https://github.com/GitUser-3-2-3/Interpreter-in-Go.git
-cd Interpreter-in-Go
+git clone https://github.com/srivastavcodes/Flint.git
+cd Flint
 go run main.go
 ```
 
-This will start the REPL (Read-Eval-Print Loop), where you can enter Monkey code and see the interpreter's response.
+This will start the REPL (Read-Eval-Print Loop), where you can enter Flint code and see the language's response.
 
 ## Example Usage
 
 Here's an example of code written in the Monkey language:
 
 ```monkey
-let factorial = fn(n) {
+let factorial = func(n) {
   if (n == 0) {
     return 1;
   } else {
@@ -55,8 +59,7 @@ factorial(5); // Outputs 120
 
 ## Resources
 
-* Book: *Writing an Interpreter in Go* by Thorsten Ball
-* Go Documentation: https://golang.org/doc/
+- Book: *Writing an Interpreter in Go* *Writing a Compiler in Go* by Thorsten Ball
 
 ## License
 
