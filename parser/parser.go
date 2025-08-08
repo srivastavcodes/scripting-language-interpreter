@@ -191,6 +191,32 @@ func (psr *Parser) parseExpressionList(rb token.TokenType) []ast.Expression {
 	return list
 }
 
+func (psr *Parser) parseHashLiteral() ast.Expression {
+	hash := &ast.HashLiteral{Token: psr.curToken}
+	hash.Pairs = make(map[ast.Expression]ast.Expression)
+
+	for !psr.peekTokenIs(token.R_BRACE) {
+		psr.nextToken()
+
+		key := psr.parseExpression(LOWEST)
+		if !psr.expectPeek(token.COLON) {
+			return nil
+		}
+
+		psr.nextToken()
+		value := psr.parseExpression(LOWEST)
+
+		hash.Pairs[key] = value
+		if !psr.peekTokenIs(token.R_BRACE) && !psr.expectPeek(token.COMMA) {
+			return nil
+		}
+	}
+	if !psr.expectPeek(token.R_BRACE) {
+		return nil
+	}
+	return hash
+}
+
 func (psr *Parser) parseIntegerLiteral() ast.Expression {
 	lit := &ast.IntegerLiteral{Token: psr.curToken}
 
@@ -408,6 +434,7 @@ func registerPrefixParseFunctions(psr *Parser) {
 	psr.registerPrefix(token.FALSE, psr.parseBoolean)
 
 	psr.registerPrefix(token.L_PAREN, psr.parseGroupedExpression)
+	psr.registerPrefix(token.L_BRACE, psr.parseHashLiteral)
 	psr.registerPrefix(token.L_BRACKET, psr.parseArrayLiteral)
 
 	psr.registerPrefix(token.IF, psr.parseIfExpression)

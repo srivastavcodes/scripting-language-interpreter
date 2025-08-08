@@ -36,6 +36,7 @@ const (
 
 	COMMA     = ","
 	SEMICOLON = ";"
+	COLON     = ":"
 
 	L_PAREN   = "("
 	R_PAREN   = ")"

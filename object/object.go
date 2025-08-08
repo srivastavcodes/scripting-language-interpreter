@@ -3,6 +3,7 @@ package object
 import (
 	"Interpreter_in_Go/ast"
 	"fmt"
+	"hash/fnv"
 	"strings"
 )
 
@@ -25,6 +26,7 @@ const (
 	FUNCTION_OBJ     = "FUNCTION"
 	STRING_OBJ       = "STRING"
 	BUILTIN_OBJ      = "BUILTIN"
+	HASH_OBJ         = "HASH"
 	ARRAY_OBJ        = "ARRAY"
 )
 
@@ -45,9 +47,9 @@ type String struct {
 	Value string
 }
 
-func (s *String) Type() ObjectType { return STRING_OBJ }
+func (str *String) Type() ObjectType { return STRING_OBJ }
 
-func (s *String) Inspect() string { return s.Value }
+func (str *String) Inspect() string { return str.Value }
 
 type Boolean struct {
 	Value bool
@@ -128,6 +130,61 @@ func (arr *Array) Inspect() string {
 	out.WriteString("[")
 	out.WriteString(strings.Join(values, ", "))
 	out.WriteString("]")
+
+	return out.String()
+}
+
+type Hashable interface {
+	HashKey() HashKey // todo -> add caching to the HashKey() returned values
+}
+
+type HashKey struct {
+	Type  ObjectType
+	Value uint64
+}
+
+func (bl *Boolean) HashKey() HashKey {
+	var value uint64
+	if bl.Value {
+		value = 1
+	} else {
+		value = 0
+	}
+	return HashKey{Type: bl.Type(), Value: value}
+}
+
+func (ig *Integer) HashKey() HashKey {
+	return HashKey{Type: ig.Type(), Value: uint64(ig.Value)}
+}
+
+func (str *String) HashKey() HashKey {
+	hash := fnv.New64a()
+	hash.Write([]byte(str.Value))
+	return HashKey{Type: str.Type(), Value: hash.Sum64()}
+}
+
+type HashPair struct {
+	Key   Object
+	Value Object
+}
+
+type Hash struct {
+	Pairs map[HashKey]HashPair
+}
+
+func (hs *Hash) Type() ObjectType { return HASH_OBJ }
+
+func (hs *Hash) Inspect() string {
+	var out strings.Builder
+	var pairs []string
+
+	for _, pair := range hs.Pairs {
+		data := fmt.Sprintf("%s:%s", pair.Key.Inspect(), pair.Value.Inspect())
+		pairs = append(pairs, data)
+	}
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
 
 	return out.String()
 }

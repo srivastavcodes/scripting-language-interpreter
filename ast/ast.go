@@ -201,11 +201,11 @@ type Boolean struct {
 	Value bool
 }
 
-func (b *Boolean) expressionNode() {}
+func (bl *Boolean) expressionNode() {}
 
-func (b *Boolean) TokenLiteral() string { return b.Token.Literal }
+func (bl *Boolean) TokenLiteral() string { return bl.Token.Literal }
 
-func (b *Boolean) String() string { return b.Token.Literal }
+func (bl *Boolean) String() string { return bl.Token.Literal }
 
 type IfExpression struct {
 	Token       token.Token
@@ -326,6 +326,29 @@ func (ie *IndexExpression) String() string {
 	out.WriteString("[")
 	out.WriteString(ie.Index.String())
 	out.WriteString("])")
+
+	return out.String()
+}
+
+type HashLiteral struct {
+	Token token.Token
+	Pairs map[Expression]Expression
+}
+
+func (hl *HashLiteral) expressionNode() {}
+
+func (hl *HashLiteral) TokenLiteral() string { return hl.Token.Literal }
+
+func (hl *HashLiteral) String() string {
+	var out strings.Builder
+
+	var pairs []string
+	for key, value := range hl.Pairs {
+		pairs = append(pairs, key.String()+":"+value.String())
+	}
+	out.WriteString("{")
+	out.WriteString(strings.Join(pairs, ", "))
+	out.WriteString("}")
 
 	return out.String()
 }
