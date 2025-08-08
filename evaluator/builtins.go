@@ -1,8 +1,19 @@
 package evaluator
 
-import "Interpreter_in_Go/object"
+import (
+	"Interpreter_in_Go/object"
+	"fmt"
+)
 
 var builtIns = map[string]*object.BuiltIn{
+	"puts": {
+		Func: func(args ...object.Object) object.Object {
+			for _, arg := range args {
+				fmt.Println(arg.Inspect())
+			}
+			return NULL
+		},
+	},
 	"len": {
 		Func: func(args ...object.Object) object.Object {
 			if len(args) != 1 {
