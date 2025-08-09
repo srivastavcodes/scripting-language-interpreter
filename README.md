@@ -1,7 +1,7 @@
 # Flint
 
-This repository contains my implementation of an interpreter and compiler for a programming language as I follow the book
-*Interpreter and Compiler in Go* by Thorsten Ball.
+This repository contains my implementation of an interpreter for a programming language as I follow the book
+*Writing an Interpreter in Go* by Thorsten Ball.
 
 ## Project Overview
 
@@ -10,8 +10,6 @@ This project is an implementation for the custom programming language. The imple
 - **Lexical Analysis (Lexer)**: Breaks the input source code into tokens.
 - **Parsing**: Converts the tokens into an Abstract Syntax Tree (AST).
 - **Evaluation**: Interprets and executes the AST.
-- **ByteCode Compilation**: *Implementation in progress*
-- **Virtual Machine**: *Implementation in progress*
 
 ## Directory Structure
 
@@ -59,7 +57,7 @@ factorial(5); // Outputs 120
 
 ## Resources
 
-- Book: *Writing an Interpreter in Go* *Writing a Compiler in Go* by Thorsten Ball
+- Book: *Writing an Interpreter in Go* by Thorsten Ball
 
 ## License
 
