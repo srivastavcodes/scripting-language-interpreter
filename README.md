@@ -1,7 +1,9 @@
 # Flint
 
-This repository contains my implementation of an interpreter for a programming language as I follow the book
-*Writing an Interpreter in Go* by Thorsten Ball.
+Flint is a small, interpreted programming language built from scratch in Go.
+It supports variable bindings, first-class functions, closures, and conditionals.
+The language includes arrays and hash maps for structured data manipulation.
+It’s designed to be minimal yet expressive, showcasing how interpreters work under the hood.
 
 ## Project Overview
 
